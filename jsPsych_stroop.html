@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stroop Experiment</title>
+    <script src="https://unpkg.com/jspsych@7.3.4"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.3"></script>
+    <link href="https://unpkg.com/jspsych@7.3.4/css/jspsych.css" rel="stylesheet" type="text/css" />
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        #jspsych-target {
+            width: 100%;
+            height: 100%;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .jspsych-content {
+            font-size: 24px; /* 调整字体大小 */
+            text-align: center;
+        }
+        .instructions {
+            margin-bottom: 20px; /* 增加指导语的间隔 */
+            font-size: 24px; /* 增加指导语字体大小 */
+            white-space: nowrap; /* 禁止文本换行 */
+        }
+        .stimulus {
+            font-size: 36px; /* 调整刺激字体大小 */
+            white-space: nowrap; /* 禁止文本换行 */
+        }
+    </style>
+</head>
+<body>
+    <div id="jspsych-target"></div>
+    <script>
+        const jsPsych = initJsPsych({
+            display_element: 'jspsych-target',
+            on_finish: function() {
+                jsPsych.data.displayData(); // 显示数据
+                jsPsych.data.get().localSave('csv', 'stroop_experiment_data.csv'); // 保存数据为CSV文件
+            }
+        });
+
+        // 创建实验时间线
+        var timeline = [];
+
+        // 欢迎页面
+        var welcome = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: '<p class="instructions">欢迎参加 Stroop 实验。按任意键继续。</p>'
+        };
+        timeline.push(welcome);
+
+        // 说明页面
+        var instructions = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: `
+                <p class="instructions">在接下来的实验中，你会看到颜色词（例如 "红色"）用不同的颜色显示。</p>
+                <p class="instructions">你的任务是忽略词的含义，按键选择词的颜色：</p>
+                <p class="instructions"><strong>按 "r" 选择红色，"g" 选择绿色，"b" 选择蓝色。</strong></p>
+                <p class="instructions">按任意键开始实验。</p>
+            `
+        };
+        timeline.push(instructions);
+
+        // 定义刺激材料
+        var stimuli = [
+            { word: '红色', color: 'red', congruency: 'congruent' },
+            { word: '红色', color: 'green', congruency: 'incongruent' },
+            { word: '红色', color: 'blue', congruency: 'incongruent' },
+            { word: '绿色', color: 'red', congruency: 'incongruent' },
+            { word: '绿色', color: 'green', congruency: 'congruent' },
+            { word: '绿色', color: 'blue', congruency: 'incongruent' },
+            { word: '蓝色', color: 'red', congruency: 'incongruent' },
+            { word: '蓝色', color: 'green', congruency: 'incongruent' },
+            { word: '蓝色', color: 'blue', congruency: 'congruent' }
+        ];
+
+        // 增加每种条件的试次数到20次
+        var trials = [];
+        for (var i = 0; i < stimuli.length; i++) {
+            for (var j = 0; j < 20; j++) {
+                trials.push({
+                    stimulus: `<p class="stimulus" style="color:${stimuli[i].color};">${stimuli[i].word}</p>`,
+                    data: {
+                        word: stimuli[i].word,
+                        color: stimuli[i].color,
+                        congruency: stimuli[i].congruency
+                    }
+                });
+            }
+        }
+
+        // 随机化刺激顺序
+        trials = jsPsych.randomization.shuffle(trials);
+
+        // 定义试次
+        var trial = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: jsPsych.timelineVariable('stimulus'),
+            choices: ['r', 'g', 'b'],
+            data: jsPsych.timelineVariable('data'),
+            on_finish: function(data){
+                // 记录反应是否正确
+                var correct = false;
+                if ((data.color === 'red' && data.response === 'r') ||
+                    (data.color === 'green' && data.response === 'g') ||
+                    (data.color === 'blue' && data.response === 'b')) {
+                    correct = true;
+                }
+                data.correct = correct;
+            }
+        };
+
+        // 将试次添加到时间线中
+        var test_procedure = {
+            timeline: [trial],
+            timeline_variables: trials,
+            randomize_order: true
+        };
+        timeline.push(test_procedure);
+
+        // 结束页面
+        var debrief = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: function() {
+                var total_trials = jsPsych.data.get().filter({trial_type: 'html-keyboard-response'}).count();
+                var accuracy = Math.round(jsPsych.data.get().filter({correct: true}).count() / total_trials * 100);
+                return `<p>实验结束！</p><p>你的正确率是 ${accuracy}%.</p><p>按任意键结束。</p>`;
+            }
+        };
+        timeline.push(debrief);
+
+        // 启动实验
+        jsPsych.run(timeline);
+    </script>
+</body>
+</html>
