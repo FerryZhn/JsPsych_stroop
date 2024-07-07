@@ -50,7 +50,7 @@
             }
         });
 
-        // 创建实验时间线
+        // 创建实验的时间线，相对时间轴
         var timeline = [];
 
         // 欢迎页面
@@ -60,7 +60,7 @@
         };
         timeline.push(welcome);
 
-        // 说明页面
+        // 说明页面，呈现实验指导语
         var instructions = {
             type: jsPsychHtmlKeyboardResponse,
             stimulus: `
@@ -72,7 +72,7 @@
         };
         timeline.push(instructions);
 
-        // 定义刺激材料
+        // 定义刺激材料，实际颜色*语义
         var stimuli = [
             { word: '红色', color: 'red', congruency: 'congruent' },
             { word: '红色', color: 'green', congruency: 'incongruent' },
@@ -100,7 +100,7 @@
             }
         }
 
-        // 随机化刺激顺序
+        // 随机化刺激呈现顺序
         trials = jsPsych.randomization.shuffle(trials);
 
         // 定义试次
@@ -121,7 +121,7 @@
             }
         };
 
-        // 将试次添加到时间线中
+        // 将试次和反应类型添加到时间线中
         var test_procedure = {
             timeline: [trial],
             timeline_variables: trials,
