@@ -15,7 +15,7 @@
 
 ### 1. HTML 结构
 
-首先，我们定义了基本的 HTML 结构，并引入了 jsPsych 相关的库和样式文件。
+首先，我们定义了基本的 HTML 结构，并引入了 jsPsych 相关的库和样式文件。并插入弹性盒子的部署，适应不同大小的屏幕。
 
 ```
 <!DOCTYPE html>
@@ -30,7 +30,7 @@
         body, html {
             height: 100%;
             margin: 0;
-            display: flex;
+            display: flex; //此处即引入弹性盒子的部署
             justify-content: center;
             align-items: center;
             background-color: #f0f0f0;
@@ -62,7 +62,7 @@
 <body>
     <div id="jspsych-target"></div>
     <script>
-        // JavaScript 代码将在这里编写
+        // JavaScript 整个实验的代码将在此处编写，即以下部分内容都在这个结构中完善，是整个实验程序的主体
     </script>
 </body>
 </html>
@@ -70,7 +70,7 @@
 
 ### 2. 初始化 jsPsych
 
-我们需要初始化 jsPsych，并定义在实验结束时的行为，例如显示数据并保存为 CSV 文件。
+在程序主体中，先初始化 jsPsych，并定义在实验结束时的行为结果，显示数据并保存为 CSV 文件。
 
 ```
 const jsPsych = initJsPsych({
@@ -84,7 +84,7 @@ const jsPsych = initJsPsych({
 
 ### 3. 创建实验时间线
 
-定义实验时间线并添加各个部分，包括欢迎页面、指导语、实验刺激和实验结束页面。
+定义实验时间线并添加各个部分，用于记录每次反应的反应时及整个实验过程
 
 ```
 var timeline = [];
@@ -92,7 +92,7 @@ var timeline = [];
 
 ### 4. 欢迎页面
 
-添加一个欢迎页面，告知参与者按任意键继续。
+添加实验欢迎页面，告知被试按任意键继续。
 
 ```
 var welcome = {
@@ -104,7 +104,7 @@ timeline.push(welcome);
 
 ### 5. 指导语
 
-指导参与者实验的具体任务和按键反应规则。
+指导语告知被试实验的具体任务和按键反应规则。
 
 ```
 var instructions = {
@@ -122,7 +122,7 @@ timeline.push(instructions);
 
 ### 6. 设置反应试次
 
-定义实验刺激及其呈现的颜色和含义是否一致，每种条件重复 20 次。
+以下部分脚本则是实现实验设计的核心部分：定义实验刺激及其呈现的颜色和含义是否一致，每种条件重复 20 次。
 
 ```
 var stimuli = [
@@ -197,7 +197,7 @@ timeline.push(test_procedure);
 
 ### 10. 实验结束
 
-定义实验结束页面，显示参与者的正确率。
+呈现实验结束页面，并显示参与者的正确率。
 
 ```
 var debrief = {
